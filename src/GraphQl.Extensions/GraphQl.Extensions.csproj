@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>GraphQl Extensions. Contains Xlsx output formatter, csv output formatter</Description>
+    <Copyright>Szymon Gaertig</Copyright>
+    <PackageProjectUrl>https://github.com/garfieldos/GraphQl.Extensions</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/garfieldos/GraphQl.Extensions</RepositoryUrl>
+    <PackageTags>GraphQl.Extensions, csv, xls, output, formatter</PackageTags>
+    <Version>1.0.2</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EPPlus.Core" Version="1.5.4" />
+    <PackageReference Include="GraphQL" Version="2.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Xml.Extensions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.0" />
+    <PackageReference Include="MimeMapping" Version="1.0.1.12" />
+  </ItemGroup>
+
+</Project>
