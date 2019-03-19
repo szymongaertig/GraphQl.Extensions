@@ -44,6 +44,7 @@ namespace GraphQl.Extensions.Formatters
                 DiagnosticListener.StartActivity(csvExportActivity, new { context });
 
             var response = context.HttpContext.Response;
+            response.Headers.Add("Content-Disposition", $"attachment; filename=\"{_entityType}.csv\"");
 
             var writer = new StreamWriter(response.Body, _encoding);
 
@@ -60,12 +61,12 @@ namespace GraphQl.Extensions.Formatters
                     }
                     csv.NextRecord();
                 }
+
+                if (DiagnosticListener.IsEnabled(DiagnosticListenerName))
+                    DiagnosticListener.StopActivity(csvExportActivity, null);
+
+                await writer.FlushAsync();
             }
-
-            if (DiagnosticListener.IsEnabled(DiagnosticListenerName))
-                DiagnosticListener.StopActivity(csvExportActivity, null);
-
-            await writer.FlushAsync();
         }
 
         protected override bool CanWriteType(Type type) => typeof(ExecutionResult) == type;

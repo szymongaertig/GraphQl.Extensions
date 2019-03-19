@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using GraphQl.Extensions.Extensions;
 using GraphQL;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Net.Http.Headers;
 using MimeMapping;
-using OfficeOpenXml;
 
 namespace GraphQl.Extensions.Formatters
 {
@@ -32,20 +33,38 @@ namespace GraphQl.Extensions.Formatters
 
             if (!result.TryExportToDataTable(_entityType, out var dataTable)) throw new FormatException();
 
+
             var csvExportActivity = new Activity("XlsxGeneration");
             if (DiagnosticListener.IsEnabled(DiagnosticListenerName))
                 DiagnosticListener.StartActivity(csvExportActivity, new { context });
 
-            var package = new ExcelPackage();
-            var worksheet = package.Workbook.Worksheets.Add(_entityType);
-            worksheet.Cells["A1"].LoadFromDataTable(dataTable, true);
+            var response = context.HttpContext.Response;
+            response.Headers.Add("Content-Disposition", $"attachment; filename=\"{_entityType}.xlsx\"");
 
-            var bytes = package.GetAsByteArray();
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add(_entityType);
+                    var rowIndex = 1;
+                    foreach (var record in result.GetRecordsStream(_entityType, true))
+                    {
+                        var cellIndex = 1;
+                        foreach (var field in record)
+                        {
+                            worksheet.Cell(rowIndex, cellIndex).Value = field;
+                            cellIndex++;
+                        }
+                        rowIndex++;
+                    }
+
+                    workbook.SaveAs(memoryStream);
+                    memoryStream.WriteTo(response.Body);
+                }
+            }
 
             if (DiagnosticListener.IsEnabled(DiagnosticListenerName))
                 DiagnosticListener.StopActivity(csvExportActivity, null);
-
-            await context.HttpContext.Response.Body.WriteAsync(bytes, 0, bytes.Length);
         }
 
         protected override bool CanWriteType(Type type)

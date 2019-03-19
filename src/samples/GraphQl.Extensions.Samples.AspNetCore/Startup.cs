@@ -7,6 +7,7 @@ using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,7 +36,7 @@ namespace GraphQl.Extensions.Samples.AspNetCore
 
             services.AddSingleton<ProductType>();
             services.AddSingleton<ProductsQuery>();
-            
+
             services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
             services.AddScoped<IProductDao, ProductDao>();
 

@@ -25,10 +25,11 @@ namespace GraphQl.Extensions.Samples.AspNetCore.Controllers
         /// </summary>
         /// <param name="query"></param>
         /// <returns></returns>
-        [HttpPost("api/graph-ql/mock")]
-        public async Task<IActionResult> GetMockedData()
+        
+        [HttpGet("api/graph-ql/mock/{numberOfRecords}")]
+        public async Task<IActionResult> GetMockedData(int numberOfRecords)
         {
-            var data = ExecutionResultMockFactory.GetGraphQlResult("products", 20, 500000);
+            var data = ExecutionResultMockFactory.GetGraphQlResult("products", 20, numberOfRecords);
 
             return Ok(new ExecutionResult
             {
