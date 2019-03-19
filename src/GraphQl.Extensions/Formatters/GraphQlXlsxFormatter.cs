@@ -22,8 +22,7 @@ namespace GraphQl.Extensions.Formatters
         public GraphQlXlsxFormatter(string entityType)
         {
             _entityType = entityType;
-
-            SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(KnownMimeTypes.Xls));
+            SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(KnownMimeTypes.Xlsx));
         }
 
         public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context)
@@ -47,7 +46,6 @@ namespace GraphQl.Extensions.Formatters
                 DiagnosticListener.StopActivity(csvExportActivity, null);
 
             await context.HttpContext.Response.Body.WriteAsync(bytes, 0, bytes.Length);
-            await package.Stream.FlushAsync();
         }
 
         protected override bool CanWriteType(Type type)

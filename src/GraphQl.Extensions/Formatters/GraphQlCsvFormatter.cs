@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using CsvHelper;
+using CsvHelper.Configuration;
 using GraphQl.Extensions.Extensions;
 using GraphQL;
 using Microsoft.AspNetCore.Mvc.Formatters;
@@ -19,19 +22,19 @@ namespace GraphQl.Extensions.Formatters
 
         private readonly Encoding _encoding;
         private readonly string _entityType;
-        private readonly string _separator;
+        private readonly string _delimiter;
 
         public GraphQlCsvFormatter(string entityType,
-            string separator,
+            string delimiter,
             Encoding encoding)
         {
-            _separator = separator;
+            _delimiter = delimiter;
             _encoding = encoding;
             _entityType = entityType;
             SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse(KnownMimeTypes.Csv));
         }
 
-        public override Task WriteResponseBodyAsync(OutputFormatterWriteContext context)
+        public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context)
         {
             var result = context.Object as ExecutionResult;
             if (result == null) throw new FormatException();
@@ -40,15 +43,29 @@ namespace GraphQl.Extensions.Formatters
             if (DiagnosticListener.IsEnabled(DiagnosticListenerName))
                 DiagnosticListener.StartActivity(csvExportActivity, new { context });
 
-            if (!result.TryExportToCsvContent(_entityType, _separator, out var buffer)) throw new FormatException();
+            var response = context.HttpContext.Response;
+
+            var writer = new StreamWriter(response.Body, _encoding);
+
+            using (var csv = new CsvWriter(writer, new Configuration
+            {
+                Delimiter = _delimiter
+            }))
+            {
+                foreach (var record in result.GetRecordsStream(_entityType, true))
+                {
+                    foreach (var field in record)
+                    {
+                        csv.WriteField(field);
+                    }
+                    csv.NextRecord();
+                }
+            }
 
             if (DiagnosticListener.IsEnabled(DiagnosticListenerName))
                 DiagnosticListener.StopActivity(csvExportActivity, null);
 
-            using (var writer = context.WriterFactory(context.HttpContext.Response.Body, _encoding))
-            {
-                return writer.WriteAsync(buffer.ToString());
-            }
+            await writer.FlushAsync();
         }
 
         protected override bool CanWriteType(Type type) => typeof(ExecutionResult) == type;

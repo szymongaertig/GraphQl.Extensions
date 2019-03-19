@@ -9,9 +9,11 @@
     <RepositoryUrl>https://github.com/garfieldos/GraphQl.Extensions</RepositoryUrl>
     <PackageTags>GraphQl.Extensions, csv, xls, output, formatter</PackageTags>
     <Version>1.0.2</Version>
+    <AssemblyName>ext</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="12.1.2" />
     <PackageReference Include="EPPlus.Core" Version="1.5.4" />
     <PackageReference Include="GraphQL" Version="2.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Xml.Extensions" Version="2.2.0" />

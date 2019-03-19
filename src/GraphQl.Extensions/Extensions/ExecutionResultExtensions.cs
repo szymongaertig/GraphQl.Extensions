@@ -16,6 +16,52 @@ namespace GraphQl.Extensions.Extensions
                    && entities.ContainsKey(requestedEntityType);
         }
 
+        public static IEnumerable<string[]> GetRecordsStream(this ExecutionResult executionResult,
+            string requestedEntityType,
+            bool exportHeaders)
+        {
+            if (!(executionResult.Data is Dictionary<string, object> entities)
+                || !entities.ContainsKey(requestedEntityType))
+                throw new FormatException();
+
+            var expectedEntity = entities[requestedEntityType];
+
+            if (!(expectedEntity is List<object> rows)) throw new FormatException();
+
+            var columns = new List<string>();
+            bool firstRow = true;
+            foreach (var rawRow in rows)
+            {
+                if (!(rawRow is Dictionary<string, object> rowData)) throw new FormatException();
+
+                if (firstRow)
+                {
+                    InitColumns(rowData, columns);
+
+                    if (exportHeaders)
+                    {
+                        yield return columns.ToArray();
+                    }
+                    firstRow = false;
+                }
+
+                var rowValue = new string[columns.Count];
+
+                // we expect, that all rows will contain all columns
+                for (var columnIndex = 0; columnIndex < columns.Count; columnIndex++)
+                {
+                    var columnKey = columns[columnIndex];
+                    if (!rowData.ContainsKey(columnKey)) throw new FormatException();
+
+                    var value = rowData[columnKey]?.GetValue().ToString();
+                    rowValue[columnIndex] = value;
+                }
+
+                yield return rowValue;
+            }
+
+        }
+
         public static bool TryExportToDataTable(this ExecutionResult executionResult,
             string requestedEntityType,
             out DataTable result)
@@ -53,6 +99,18 @@ namespace GraphQl.Extensions.Extensions
             }
 
             return true;
+        }
+
+        private static void InitColumns(Dictionary<string, object> rowData,
+            List<string> columns)
+        {
+            if (columns == null) throw new ArgumentNullException(nameof(columns));
+            if (columns.Count > 0) return;
+
+            foreach (var row in rowData)
+            {
+                columns.Add(row.Key);
+            }
         }
 
         private static void InitColumns(Dictionary<string, object> rowData,

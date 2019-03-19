@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using GraphQl.Extensions.Samples.AspNetCore.Model;
+using GraphQl.Extensions.Tests.ExecutionResultExtensionsTests;
 using GraphQL;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,22 @@ namespace GraphQl.Extensions.Samples.AspNetCore.Controllers
         {
             _schema = schema;
             _documentExecuter = documentExecuter;
+        }
+
+        /// <summary>
+        /// Returns mock of executionResult data
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        [HttpPost("api/graph-ql/mock")]
+        public async Task<IActionResult> GetMockedData()
+        {
+            var data = ExecutionResultMockFactory.GetGraphQlResult("products", 20, 500000);
+
+            return Ok(new ExecutionResult
+            {
+                Data = data
+            });
         }
 
         [HttpPost("api/graph-ql")]
