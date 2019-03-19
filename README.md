@@ -21,8 +21,8 @@ To enable output formatters, you need to add to the ConfigureServices method fro
                 services.AddMvc(options =>
                 {
                     options.RespectBrowserAcceptHeader = true;
-                    options.OutputFormatters.Add(new GraphQlCsvFormatter("products", ";", Encoding.UTF8));
-                    options.OutputFormatters.Add(new GraphQlXlsxFormatter("products"));
+                    options.OutputFormatters.Add(new GraphQlCsvFormatter("entity_type", ";", Encoding.UTF8));
+                    options.OutputFormatters.Add(new GraphQlXlsxFormatter("entity_type"));
 
                 })
 ```
