@@ -65,7 +65,6 @@ namespace GraphQl.Extensions.Formatters
                 if (DiagnosticListener.IsEnabled(DiagnosticListenerName))
                     DiagnosticListener.StopActivity(csvExportActivity, null);
 
-                await writer.FlushAsync();
             }
         }
 
